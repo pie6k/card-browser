@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { GlobalStyle } from './global-style'
 
-import { BasicFilterView, UserFilterView } from './views'
+import { BasicFilterView, UserFilterView, UserFilterGroupsView } from './views'
 import { Spacing } from './lib/layout'
 import { ShowcasePage } from './lib/presentation'
 
@@ -15,6 +15,8 @@ const App = () => (
       <BasicFilterView />
       <Spacing size="Large" />
       <UserFilterView />
+      <Spacing size="Large" />
+      <UserFilterGroupsView />
     </ShowcasePage>
   </>
 )

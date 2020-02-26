@@ -19,7 +19,9 @@ const renderUserItem = (userItem: User) => {
   return <UserLabel user={userItem} />
 }
 
-export function UserFilterView() {
+const getUserSection = (userItem: User) => userItem.positionName
+
+export function UserFilterGroupsView() {
   const [selectedUsers, toggleUser] = useArrayToggle<User>([], getUserId)
 
   return (
@@ -30,6 +32,7 @@ export function UserFilterView() {
           value={selectedUsers}
           itemRenderer={renderUserItem}
           itemKeyGetter={getUserId}
+          itemSectionGetter={getUserSection}
           onChange={toggleUser}
           filter={{
             inputPlaceholder: 'Filter by name',

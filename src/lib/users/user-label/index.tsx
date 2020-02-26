@@ -2,12 +2,13 @@ import React from 'react'
 import { User } from '~/lib/data'
 import styled from 'styled-components'
 import { Colors } from '~/lib/style-guide'
+import { memo } from '~/lib/memo'
 
 interface Props {
   user: User
 }
 
-export function UserLabel({ user }: Props) {
+export const UserLabel = memo(function UserLabel({ user }: Props) {
   return (
     <Holder>
       <ImagesHolder>
@@ -20,7 +21,7 @@ export function UserLabel({ user }: Props) {
       <PositionNameLabel>{user.positionName}</PositionNameLabel>
     </Holder>
   )
-}
+})
 
 const Holder = styled.div`
   display: flex;

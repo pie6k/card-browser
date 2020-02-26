@@ -6,4 +6,5 @@ export const ShowcasePage = styled.div`
   flex-grow: 1;
   align-items: center;
   justify-content: center;
+  padding: 40px;
 `

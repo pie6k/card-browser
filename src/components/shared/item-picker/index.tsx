@@ -6,6 +6,7 @@ import { Input } from './input'
 import { Colors, UI } from '~/lib/style-guide'
 import { filterArrayBySearchTerm } from '~/lib/search'
 import { AnimateContentHeight } from '~/lib/animations'
+import { ItemsGroup, groupItemsByKeyGetter } from './groups'
 
 type ValueGetter<T, V> = (item: T) => V
 
@@ -15,6 +16,7 @@ interface Props<T> {
   onChange: (item: T) => void
   itemKeyGetter: ValueGetter<T, string>
   itemRenderer: (item: T, isSelected: boolean) => ReactNode
+  itemSectionGetter?: (item: T) => string
   filter?: {
     inputPlaceholder: string
     itemTermGetter: ValueGetter<T, string>
@@ -28,7 +30,8 @@ export function ItemPicker<T>({
   itemRenderer,
   onChange,
   filter,
-  value
+  value,
+  itemSectionGetter
 }: Props<T>) {
   const [filterQuery, setFilterQuery] = useState('')
 
@@ -74,6 +77,16 @@ export function ItemPicker<T>({
 
   const itemsToShow = getItemsToDisplay()
 
+  function getItemGroupsToShow(): ItemsGroup<T>[] {
+    if (!itemSectionGetter) {
+      return [{ name: '', items: itemsToShow }]
+    }
+
+    return groupItemsByKeyGetter(itemsToShow, itemSectionGetter)
+  }
+
+  const groupsToShow = getItemGroupsToShow()
+
   return (
     <Holder>
       {!!filter && (
@@ -87,20 +100,26 @@ export function ItemPicker<T>({
       )}
       <AnimateContentHeight>
         <ItemsHolder>
-          {itemsToShow.map((item) => {
-            const itemKey = itemKeyGetter(item)
-
-            const isSelected = selectedItemKeys.includes(itemKey)
-
+          {groupsToShow.map((group) => {
             return (
-              <Item
-                item={item}
-                key={itemKey}
-                onSelect={onChange}
-                isSelected={isSelected}
-              >
-                {itemRenderer(item, isSelected)}
-              </Item>
+              <GroupHolder key={group.name}>
+                {group.items.map((item) => {
+                  const itemKey = itemKeyGetter(item)
+
+                  const isSelected = selectedItemKeys.includes(itemKey)
+
+                  return (
+                    <Item
+                      item={item}
+                      key={itemKey}
+                      onSelect={onChange}
+                      isSelected={isSelected}
+                    >
+                      {itemRenderer(item, isSelected)}
+                    </Item>
+                  )
+                })}
+              </GroupHolder>
             )
           })}
           {(!itemsToShow.length && filter?.noItemsFoundNode) ?? null}
@@ -117,6 +136,12 @@ const Holder = styled.div`
   border-radius: 4px;
   overflow: hidden;
   width: 100%;
+`
+
+const GroupHolder = styled.div`
+  &:not(:last-child) {
+    margin-bottom: 8px;
+  }
 `
 
 const ItemsHolder = styled.div`
