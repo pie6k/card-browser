@@ -36323,11 +36323,57 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 __export(require("./animate-content-height"));
-},{"./animate-content-height":"lib/animations/animate-content-height.tsx"}],"components/shared/item-picker/index.tsx":[function(require,module,exports) {
+},{"./animate-content-height":"lib/animations/animate-content-height.tsx"}],"components/shared/item-picker/groups.ts":[function(require,module,exports) {
 "use strict";
 
-function _templateObject3() {
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+function groupItemsByKeyGetter(items, groupKeyGetter) {
+  var groups = [];
+
+  function getOrCreateGroup(groupName) {
+    var existingGroup = groups.find(function (group) {
+      return group.name === groupName;
+    });
+
+    if (existingGroup) {
+      return existingGroup;
+    }
+
+    var newGroup = {
+      name: groupName,
+      items: []
+    };
+    groups.push(newGroup);
+    return newGroup;
+  }
+
+  items.forEach(function (item) {
+    var groupName = groupKeyGetter(item);
+    var group = getOrCreateGroup(groupName);
+    group.items.push(item);
+  });
+  return groups;
+}
+
+exports.groupItemsByKeyGetter = groupItemsByKeyGetter;
+},{}],"components/shared/item-picker/index.tsx":[function(require,module,exports) {
+"use strict";
+
+function _templateObject4() {
   var data = _taggedTemplateLiteral(["\n  border-bottom: 1px solid ", ";\n"]);
+
+  _templateObject4 = function _templateObject4() {
+    return data;
+  };
+
+  return data;
+}
+
+function _templateObject3() {
+  var data = _taggedTemplateLiteral(["\n  padding: 8px 0;\n"]);
 
   _templateObject3 = function _templateObject3() {
     return data;
@@ -36337,7 +36383,7 @@ function _templateObject3() {
 }
 
 function _templateObject2() {
-  var data = _taggedTemplateLiteral(["\n  padding: 8px 0;\n"]);
+  var data = _taggedTemplateLiteral(["\n  &:not(:last-child) {\n    margin-bottom: 8px;\n  }\n"]);
 
   _templateObject2 = function _templateObject2() {
     return data;
@@ -36400,13 +36446,16 @@ var search_1 = require("~/lib/search");
 
 var animations_1 = require("~/lib/animations");
 
+var groups_1 = require("./groups");
+
 function ItemPicker(_ref) {
   var items = _ref.items,
       itemKeyGetter = _ref.itemKeyGetter,
       itemRenderer = _ref.itemRenderer,
       onChange = _ref.onChange,
       filter = _ref.filter,
-      value = _ref.value;
+      value = _ref.value,
+      itemSectionGetter = _ref.itemSectionGetter;
 
   var _a, _b;
 
@@ -36452,28 +36501,46 @@ function ItemPicker(_ref) {
 
 
   var itemsToShow = getItemsToDisplay();
+
+  function getItemGroupsToShow() {
+    if (!itemSectionGetter) {
+      return [{
+        name: '',
+        items: itemsToShow
+      }];
+    }
+
+    return groups_1.groupItemsByKeyGetter(itemsToShow, itemSectionGetter);
+  }
+
+  var groupsToShow = getItemGroupsToShow();
   return react_1.default.createElement(Holder, null, !!filter && react_1.default.createElement(FilterFormHolder, null, react_1.default.createElement(input_1.Input, {
     onChange: function onChange(event) {
       return setFilterQuery(event.target.value);
     },
     placeholder: filter.inputPlaceholder
-  })), react_1.default.createElement(animations_1.AnimateContentHeight, null, react_1.default.createElement(ItemsHolder, null, itemsToShow.map(function (item) {
-    var itemKey = itemKeyGetter(item);
-    var isSelected = selectedItemKeys.includes(itemKey);
-    return react_1.default.createElement(item_1.Item, {
-      item: item,
-      key: itemKey,
-      onSelect: onChange,
-      isSelected: isSelected
-    }, itemRenderer(item, isSelected));
+  })), react_1.default.createElement(animations_1.AnimateContentHeight, null, react_1.default.createElement(ItemsHolder, null, groupsToShow.map(function (group) {
+    return react_1.default.createElement(GroupHolder, {
+      key: group.name
+    }, group.items.map(function (item) {
+      var itemKey = itemKeyGetter(item);
+      var isSelected = selectedItemKeys.includes(itemKey);
+      return react_1.default.createElement(item_1.Item, {
+        item: item,
+        key: itemKey,
+        onSelect: onChange,
+        isSelected: isSelected
+      }, itemRenderer(item, isSelected));
+    }));
   }), (_b = !itemsToShow.length && ((_a = filter) === null || _a === void 0 ? void 0 : _a.noItemsFoundNode), _b !== null && _b !== void 0 ? _b : null))));
 }
 
 exports.ItemPicker = ItemPicker;
 var Holder = styled_components_1.default.div(_templateObject(), style_guide_1.Colors.PureWhite, style_guide_1.Colors.Border, style_guide_1.UI.BOX_SHADOW_DEPTH_10);
-var ItemsHolder = styled_components_1.default.div(_templateObject2());
-var FilterFormHolder = styled_components_1.default.div(_templateObject3(), style_guide_1.Colors.Primary20);
-},{"react":"../node_modules/react/index.js","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","./item":"components/shared/item-picker/item/index.tsx","./input":"components/shared/item-picker/input/index.tsx","~/lib/style-guide":"lib/style-guide.ts","~/lib/search":"lib/search/index.ts","~/lib/animations":"lib/animations/index.ts"}],"lib/presentation/item-showcase.ts":[function(require,module,exports) {
+var GroupHolder = styled_components_1.default.div(_templateObject2());
+var ItemsHolder = styled_components_1.default.div(_templateObject3());
+var FilterFormHolder = styled_components_1.default.div(_templateObject4(), style_guide_1.Colors.Primary20);
+},{"react":"../node_modules/react/index.js","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","./item":"components/shared/item-picker/item/index.tsx","./input":"components/shared/item-picker/input/index.tsx","~/lib/style-guide":"lib/style-guide.ts","~/lib/search":"lib/search/index.ts","~/lib/animations":"lib/animations/index.ts","./groups":"components/shared/item-picker/groups.ts"}],"lib/presentation/item-showcase.ts":[function(require,module,exports) {
 "use strict";
 
 function _templateObject() {
@@ -36505,7 +36572,7 @@ exports.ItemShowcase = styled_components_1.default.div(_templateObject());
 "use strict";
 
 function _templateObject() {
-  var data = _taggedTemplateLiteral(["\n  display: flex;\n  flex-direction: column;\n  flex-grow: 1;\n  align-items: center;\n  justify-content: center;\n"]);
+  var data = _taggedTemplateLiteral(["\n  display: flex;\n  flex-direction: column;\n  flex-grow: 1;\n  align-items: center;\n  justify-content: center;\n  padding: 40px;\n"]);
 
   _templateObject = function _templateObject() {
     return data;
@@ -36990,7 +37057,154 @@ function BasicFilterView() {
 
 exports.BasicFilterView = BasicFilterView;
 var Holder = styled_components_1.default.div(_templateObject());
-},{"react":"../node_modules/react/index.js","~/components/shared/item-picker":"components/shared/item-picker/index.tsx","~/lib/presentation":"lib/presentation/index.ts","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","~/lib/hooks":"lib/hooks/index.ts"}],"views/user-filter/user-label/index.tsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","~/components/shared/item-picker":"components/shared/item-picker/index.tsx","~/lib/presentation":"lib/presentation/index.ts","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","~/lib/hooks":"lib/hooks/index.ts"}],"lib/placeholders/empty-state-placeholder.tsx":[function(require,module,exports) {
+"use strict";
+
+function _templateObject() {
+  var data = _taggedTemplateLiteral(["\n  text-align: center;\n"]);
+
+  _templateObject = function _templateObject() {
+    return data;
+  };
+
+  return data;
+}
+
+function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var react_1 = __importDefault(require("react"));
+
+var styled_components_1 = __importDefault(require("styled-components"));
+
+function EmptyStatePlaceholder(props) {
+  return react_1.default.createElement(Holder, null, props.description);
+}
+
+exports.EmptyStatePlaceholder = EmptyStatePlaceholder;
+var Holder = styled_components_1.default.div(_templateObject());
+},{"react":"../node_modules/react/index.js","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js"}],"lib/placeholders/index.ts":[function(require,module,exports) {
+"use strict";
+
+function __export(m) {
+  for (var p in m) {
+    if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+  }
+}
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+__export(require("./empty-state-placeholder"));
+},{"./empty-state-placeholder":"lib/placeholders/empty-state-placeholder.tsx"}],"lib/data/assets/1.png":[function(require,module,exports) {
+module.exports = "/1.bd701685.png";
+},{}],"lib/data/assets/2.jpeg":[function(require,module,exports) {
+module.exports = "/2.ce99ce7a.jpeg";
+},{}],"lib/data/assets/3.jpeg":[function(require,module,exports) {
+module.exports = "/3.e26f24b7.jpeg";
+},{}],"lib/data/assets/4.jpg":[function(require,module,exports) {
+module.exports = "/4.9e058257.jpg";
+},{}],"lib/data/assets/company.png":[function(require,module,exports) {
+module.exports = "/company.ebec92c5.png";
+},{}],"lib/data/assets/index.ts":[function(require,module,exports) {
+"use strict";
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _1_png_1 = __importDefault(require("./1.png"));
+
+var _2_jpeg_1 = __importDefault(require("./2.jpeg"));
+
+var _3_jpeg_1 = __importDefault(require("./3.jpeg"));
+
+var _4_jpg_1 = __importDefault(require("./4.jpg"));
+
+var company_png_1 = __importDefault(require("./company.png"));
+
+exports.userAvatars = {
+  user1: _1_png_1.default,
+  user2: _2_jpeg_1.default,
+  user3: _3_jpeg_1.default,
+  user4: _4_jpg_1.default
+};
+exports.companies = {
+  company1: company_png_1.default
+};
+},{"./1.png":"lib/data/assets/1.png","./2.jpeg":"lib/data/assets/2.jpeg","./3.jpeg":"lib/data/assets/3.jpeg","./4.jpg":"lib/data/assets/4.jpg","./company.png":"lib/data/assets/company.png"}],"lib/data/users-db.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var assets_1 = require("./assets");
+
+exports.usersDb = [{
+  id: '1',
+  fullName: 'Ross Rich',
+  positionName: 'Manager',
+  avatarUrl: assets_1.userAvatars.user1,
+  companyLogoUrl: assets_1.companies.company1
+}, {
+  id: '2',
+  fullName: 'Harry Avery',
+  positionName: 'Associate',
+  avatarUrl: assets_1.userAvatars.user2,
+  companyLogoUrl: assets_1.companies.company1
+}, {
+  id: '3',
+  fullName: 'Amit Patel',
+  positionName: 'Associate',
+  avatarUrl: assets_1.userAvatars.user3,
+  companyLogoUrl: assets_1.companies.company1
+}, {
+  id: '4',
+  fullName: 'Suzy Anderson',
+  positionName: 'Associate',
+  avatarUrl: assets_1.userAvatars.user4,
+  companyLogoUrl: assets_1.companies.company1
+}];
+},{"./assets":"lib/data/assets/index.ts"}],"lib/memo.ts":[function(require,module,exports) {
+"use strict";
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var react_fast_compare_1 = __importDefault(require("react-fast-compare"));
+
+var react_1 = __importDefault(require("react"));
+
+function memo(Component) {
+  return react_1.default.memo(Component, react_fast_compare_1.default);
+}
+
+exports.memo = memo;
+},{"react-fast-compare":"../node_modules/react-fast-compare/index.js","react":"../node_modules/react/index.js"}],"lib/users/user-label/index.tsx":[function(require,module,exports) {
 "use strict";
 
 function _templateObject6() {
@@ -37071,7 +37285,9 @@ var styled_components_1 = __importDefault(require("styled-components"));
 
 var style_guide_1 = require("~/lib/style-guide");
 
-function UserLabel(_ref) {
+var memo_1 = require("~/lib/memo");
+
+exports.UserLabel = memo_1.memo(function UserLabel(_ref) {
   var user = _ref.user;
   return react_1.default.createElement(Holder, null, react_1.default.createElement(ImagesHolder, null, react_1.default.createElement(CompanyImage, {
     style: {
@@ -37082,9 +37298,7 @@ function UserLabel(_ref) {
       backgroundImage: "url(".concat(user.avatarUrl, ")")
     }
   })), react_1.default.createElement(UserNameLabel, null, user.fullName), react_1.default.createElement(PositionNameLabel, null, user.positionName));
-}
-
-exports.UserLabel = UserLabel;
+});
 var Holder = styled_components_1.default.div(_templateObject());
 var IMAGES_OVERLAY_OFFSET = 8;
 var IMAGE_SIZE = 22;
@@ -37093,42 +37307,7 @@ var AvatarImage = styled_components_1.default.div(_templateObject3(), IMAGE_SIZE
 var CompanyImage = styled_components_1.default(AvatarImage)(_templateObject4(), style_guide_1.Colors.BG1);
 var UserNameLabel = styled_components_1.default.div(_templateObject5());
 var PositionNameLabel = styled_components_1.default.div(_templateObject6());
-},{"react":"../node_modules/react/index.js","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","~/lib/style-guide":"lib/style-guide.ts"}],"lib/placeholders/empty-state-placeholder.tsx":[function(require,module,exports) {
-"use strict";
-
-function _templateObject() {
-  var data = _taggedTemplateLiteral(["\n  text-align: center;\n"]);
-
-  _templateObject = function _templateObject() {
-    return data;
-  };
-
-  return data;
-}
-
-function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var react_1 = __importDefault(require("react"));
-
-var styled_components_1 = __importDefault(require("styled-components"));
-
-function EmptyStatePlaceholder(props) {
-  return react_1.default.createElement(Holder, null, props.description);
-}
-
-exports.EmptyStatePlaceholder = EmptyStatePlaceholder;
-var Holder = styled_components_1.default.div(_templateObject());
-},{"react":"../node_modules/react/index.js","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js"}],"lib/placeholders/index.ts":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","~/lib/style-guide":"lib/style-guide.ts","~/lib/memo":"lib/memo.ts"}],"lib/users/index.ts":[function(require,module,exports) {
 "use strict";
 
 function __export(m) {
@@ -37141,50 +37320,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-__export(require("./empty-state-placeholder"));
-},{"./empty-state-placeholder":"lib/placeholders/empty-state-placeholder.tsx"}],"views/user-filter/assets/1.png":[function(require,module,exports) {
-module.exports = "/1.18354945.png";
-},{}],"views/user-filter/assets/2.jpeg":[function(require,module,exports) {
-module.exports = "/2.a7fdf9fb.jpeg";
-},{}],"views/user-filter/assets/3.jpeg":[function(require,module,exports) {
-module.exports = "/3.e67dd021.jpeg";
-},{}],"views/user-filter/assets/4.jpg":[function(require,module,exports) {
-module.exports = "/4.7a140c28.jpg";
-},{}],"views/user-filter/assets/company.png":[function(require,module,exports) {
-module.exports = "/company.ebd69de8.png";
-},{}],"views/user-filter/assets/index.ts":[function(require,module,exports) {
-"use strict";
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _1_png_1 = __importDefault(require("./1.png"));
-
-var _2_jpeg_1 = __importDefault(require("./2.jpeg"));
-
-var _3_jpeg_1 = __importDefault(require("./3.jpeg"));
-
-var _4_jpg_1 = __importDefault(require("./4.jpg"));
-
-var company_png_1 = __importDefault(require("./company.png"));
-
-exports.userAvatars = {
-  user1: _1_png_1.default,
-  user2: _2_jpeg_1.default,
-  user3: _3_jpeg_1.default,
-  user4: _4_jpg_1.default
-};
-exports.companies = {
-  company1: company_png_1.default
-};
-},{"./1.png":"views/user-filter/assets/1.png","./2.jpeg":"views/user-filter/assets/2.jpeg","./3.jpeg":"views/user-filter/assets/3.jpeg","./4.jpg":"views/user-filter/assets/4.jpg","./company.png":"views/user-filter/assets/company.png"}],"views/user-filter/index.tsx":[function(require,module,exports) {
+__export(require("./user-label"));
+},{"./user-label":"lib/users/user-label/index.tsx"}],"views/user-filter/index.tsx":[function(require,module,exports) {
 "use strict";
 
 function _templateObject() {
@@ -37223,41 +37360,15 @@ var presentation_1 = require("~/lib/presentation");
 
 var item_picker_1 = require("~/components/shared/item-picker");
 
-var user_label_1 = require("./user-label");
-
 var styled_components_1 = __importDefault(require("styled-components"));
 
 var placeholders_1 = require("~/lib/placeholders");
 
-var assets_1 = require("./assets");
-
 var hooks_1 = require("~/lib/hooks");
 
-var items = [{
-  id: '1',
-  fullName: 'Ross Rich',
-  positionName: 'Manager',
-  avatarUrl: assets_1.userAvatars.user1,
-  companyLogoUrl: assets_1.companies.company1
-}, {
-  id: '2',
-  fullName: 'Harry Avery',
-  positionName: 'Associate',
-  avatarUrl: assets_1.userAvatars.user2,
-  companyLogoUrl: assets_1.companies.company1
-}, {
-  id: '3',
-  fullName: 'Amit Patel',
-  positionName: 'Associate',
-  avatarUrl: assets_1.userAvatars.user3,
-  companyLogoUrl: assets_1.companies.company1
-}, {
-  id: '4',
-  fullName: 'Suzy Anderson',
-  positionName: 'Associate',
-  avatarUrl: assets_1.userAvatars.user4,
-  companyLogoUrl: assets_1.companies.company1
-}];
+var users_db_1 = require("~/lib/data/users-db");
+
+var users_1 = require("~/lib/users");
 
 var getUserSearchTerm = function getUserSearchTerm(userItem) {
   return "".concat(userItem.fullName, " ").concat(userItem.positionName);
@@ -37268,7 +37379,7 @@ var getUserId = function getUserId(userItem) {
 };
 
 var renderUserItem = function renderUserItem(userItem) {
-  return react_1.default.createElement(user_label_1.UserLabel, {
+  return react_1.default.createElement(users_1.UserLabel, {
     user: userItem
   });
 };
@@ -37280,7 +37391,7 @@ function UserFilterView() {
       toggleUser = _hooks_1$useArrayTogg2[1];
 
   return react_1.default.createElement(presentation_1.ItemShowcase, null, react_1.default.createElement(Holder, null, react_1.default.createElement(item_picker_1.ItemPicker, {
-    items: items,
+    items: users_db_1.usersDb,
     value: selectedUsers,
     itemRenderer: renderUserItem,
     itemKeyGetter: getUserId,
@@ -37297,7 +37408,99 @@ function UserFilterView() {
 
 exports.UserFilterView = UserFilterView;
 var Holder = styled_components_1.default.div(_templateObject());
-},{"react":"../node_modules/react/index.js","~/lib/presentation":"lib/presentation/index.ts","~/components/shared/item-picker":"components/shared/item-picker/index.tsx","./user-label":"views/user-filter/user-label/index.tsx","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","~/lib/placeholders":"lib/placeholders/index.ts","./assets":"views/user-filter/assets/index.ts","~/lib/hooks":"lib/hooks/index.ts"}],"views/index.tsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","~/lib/presentation":"lib/presentation/index.ts","~/components/shared/item-picker":"components/shared/item-picker/index.tsx","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","~/lib/placeholders":"lib/placeholders/index.ts","~/lib/hooks":"lib/hooks/index.ts","~/lib/data/users-db":"lib/data/users-db.ts","~/lib/users":"lib/users/index.ts"}],"views/user-filter-groups/index.tsx":[function(require,module,exports) {
+"use strict";
+
+function _templateObject() {
+  var data = _taggedTemplateLiteral(["\n  width: 270px;\n"]);
+
+  _templateObject = function _templateObject() {
+    return data;
+  };
+
+  return data;
+}
+
+function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var react_1 = __importDefault(require("react"));
+
+var presentation_1 = require("~/lib/presentation");
+
+var item_picker_1 = require("~/components/shared/item-picker");
+
+var styled_components_1 = __importDefault(require("styled-components"));
+
+var placeholders_1 = require("~/lib/placeholders");
+
+var hooks_1 = require("~/lib/hooks");
+
+var users_db_1 = require("~/lib/data/users-db");
+
+var users_1 = require("~/lib/users");
+
+var getUserSearchTerm = function getUserSearchTerm(userItem) {
+  return "".concat(userItem.fullName, " ").concat(userItem.positionName);
+};
+
+var getUserId = function getUserId(userItem) {
+  return userItem.id;
+};
+
+var renderUserItem = function renderUserItem(userItem) {
+  return react_1.default.createElement(users_1.UserLabel, {
+    user: userItem
+  });
+};
+
+var getUserSection = function getUserSection(userItem) {
+  return userItem.positionName;
+};
+
+function UserFilterGroupsView() {
+  var _hooks_1$useArrayTogg = hooks_1.useArrayToggle([], getUserId),
+      _hooks_1$useArrayTogg2 = _slicedToArray(_hooks_1$useArrayTogg, 2),
+      selectedUsers = _hooks_1$useArrayTogg2[0],
+      toggleUser = _hooks_1$useArrayTogg2[1];
+
+  return react_1.default.createElement(presentation_1.ItemShowcase, null, react_1.default.createElement(Holder, null, react_1.default.createElement(item_picker_1.ItemPicker, {
+    items: users_db_1.usersDb,
+    value: selectedUsers,
+    itemRenderer: renderUserItem,
+    itemKeyGetter: getUserId,
+    itemSectionGetter: getUserSection,
+    onChange: toggleUser,
+    filter: {
+      inputPlaceholder: 'Filter by name',
+      itemTermGetter: getUserSearchTerm,
+      noItemsFoundNode: react_1.default.createElement(placeholders_1.EmptyStatePlaceholder, {
+        description: "No users found."
+      })
+    }
+  })));
+}
+
+exports.UserFilterGroupsView = UserFilterGroupsView;
+var Holder = styled_components_1.default.div(_templateObject());
+},{"react":"../node_modules/react/index.js","~/lib/presentation":"lib/presentation/index.ts","~/components/shared/item-picker":"components/shared/item-picker/index.tsx","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","~/lib/placeholders":"lib/placeholders/index.ts","~/lib/hooks":"lib/hooks/index.ts","~/lib/data/users-db":"lib/data/users-db.ts","~/lib/users":"lib/users/index.ts"}],"views/index.tsx":[function(require,module,exports) {
 "use strict";
 
 function __export(m) {
@@ -37313,7 +37516,9 @@ Object.defineProperty(exports, "__esModule", {
 __export(require("./basic-filter"));
 
 __export(require("./user-filter"));
-},{"./basic-filter":"views/basic-filter/index.tsx","./user-filter":"views/user-filter/index.tsx"}],"lib/layout/spacing.ts":[function(require,module,exports) {
+
+__export(require("./user-filter-groups"));
+},{"./basic-filter":"views/basic-filter/index.tsx","./user-filter":"views/user-filter/index.tsx","./user-filter-groups":"views/user-filter-groups/index.tsx"}],"lib/layout/spacing.ts":[function(require,module,exports) {
 "use strict";
 
 function _templateObject() {
@@ -37389,7 +37594,9 @@ console.info("\u269B\uFE0F ".concat(react_1.default.version));
 var App = function App() {
   return react_1.default.createElement(react_1.default.Fragment, null, react_1.default.createElement(global_style_1.GlobalStyle, null), react_1.default.createElement(presentation_1.ShowcasePage, null, react_1.default.createElement(views_1.BasicFilterView, null), react_1.default.createElement(layout_1.Spacing, {
     size: "Large"
-  }), react_1.default.createElement(views_1.UserFilterView, null)));
+  }), react_1.default.createElement(views_1.UserFilterView, null), react_1.default.createElement(layout_1.Spacing, {
+    size: "Large"
+  }), react_1.default.createElement(views_1.UserFilterGroupsView, null)));
 };
 
 react_dom_1.default.render(react_1.default.createElement(App, null), document.getElementById('root'));
@@ -37422,7 +37629,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55287" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49390" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
