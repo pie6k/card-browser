@@ -103,22 +103,24 @@ export function ItemPicker<T>({
           {groupsToShow.map((group) => {
             return (
               <GroupHolder key={group.name}>
-                {group.items.map((item) => {
-                  const itemKey = itemKeyGetter(item)
+                <AnimateContentHeight>
+                  {group.items.map((item) => {
+                    const itemKey = itemKeyGetter(item)
 
-                  const isSelected = selectedItemKeys.includes(itemKey)
+                    const isSelected = selectedItemKeys.includes(itemKey)
 
-                  return (
-                    <Item
-                      item={item}
-                      key={itemKey}
-                      onSelect={onChange}
-                      isSelected={isSelected}
-                    >
-                      {itemRenderer(item, isSelected)}
-                    </Item>
-                  )
-                })}
+                    return (
+                      <Item
+                        item={item}
+                        key={itemKey}
+                        onSelect={onChange}
+                        isSelected={isSelected}
+                      >
+                        {itemRenderer(item, isSelected)}
+                      </Item>
+                    )
+                  })}
+                </AnimateContentHeight>
               </GroupHolder>
             )
           })}
