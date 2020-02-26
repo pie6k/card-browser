@@ -1,13 +1,11 @@
 import React from 'react'
-import { ItemShowcase } from '~/lib/presentation'
+import styled from 'styled-components'
 import { ItemPicker } from '~/components/shared/item-picker'
 import { User } from '~/lib/data'
-
-import styled from 'styled-components'
-import { EmptyStatePlaceholder } from '~/lib/placeholders'
-
-import { useArrayToggle } from '~/lib/hooks'
 import { usersDb } from '~/lib/data/users-db'
+import { useArrayToggle } from '~/lib/hooks'
+import { EmptyStatePlaceholder } from '~/lib/placeholders'
+import { ItemShowcase } from '~/lib/presentation'
 import { UserLabel } from '~/lib/users'
 
 const getUserSearchTerm = (userItem: User) =>

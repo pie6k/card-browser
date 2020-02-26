@@ -1,12 +1,11 @@
 import React, { ReactNode, useState } from 'react'
 import styled from 'styled-components'
-
-import { Item } from './item'
-import { Input } from './input'
-import { Colors, UI } from '~/lib/style-guide'
-import { filterArrayBySearchTerm } from '~/lib/search'
 import { AnimateContentHeight } from '~/lib/animations'
-import { ItemsGroup, groupItemsByKeyGetter } from './groups'
+import { filterArrayBySearchTerm } from '~/lib/search'
+import { Colors, UI } from '~/lib/style-guide'
+import { groupItemsByKeyGetter, ItemsGroup } from './groups'
+import { Input } from './input'
+import { Item } from './item'
 
 type ValueGetter<T, V> = (item: T) => V
 
